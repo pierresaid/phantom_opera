@@ -6,6 +6,7 @@ import json
 import protocol
 from random import randrange
 import random
+import utils
 
 host = "localhost"
 port = 12000
