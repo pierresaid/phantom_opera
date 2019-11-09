@@ -6,6 +6,8 @@ import json
 import protocol
 from random import randrange
 import random
+
+# Local import
 import utils
 
 host = "localhost"
@@ -35,7 +37,7 @@ inspector_logger.addHandler(stream_handler)
 class Player():
 
     def __init__(self):
-
+        self.best_move = None
         self.end = False
         # self.old_question = ""
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -51,7 +53,27 @@ class Player():
         # work
         data = question["data"]
         game_state = question["game state"]
-        response_index = random.randint(0, len(data)-1)
+        response_index = 0
+        
+        if question['question type'] == "select character":
+            self.best_move = self.find_best_move(game_state)
+            response_index = next((index for (index, d) in enumerate(question['data']) if d["color"] == self.best_move["color"]), None)
+            # print(question['data'])
+        
+        elif question['question type'] == "select position":
+            # self.best_move = self.find_best_move(game_state)
+            response_index = next((index for (index, d) in enumerate(question['data']) if d == self.best_move["pos"]), None)
+            # print(response_index)
+            # print(question['data'])
+            # exit()
+        # else:
+            # self.best_move = self.find_best_move(game_state)
+            # response_index = next((index for (index, d) in enumerate(question['data']) if d == self.best_move["pos"]), None)
+            # print(response_index)
+            # print(question['data'])
+            # exit()
+            # print(question['question type'])
+            # print(question['data'])
         # log
         inspector_logger.debug("|\n|")
         inspector_logger.debug("inspector answers")
@@ -60,6 +82,32 @@ class Player():
         inspector_logger.debug(f"response index ---- {response_index}")
         inspector_logger.debug(f"response ---------- {data[response_index]}")
         return response_index
+
+    def find_best_move(self, game_state):
+        all_possible_game_state = utils.get_all_possible_game_state_objects(game_state)
+        best_heuristic = -1
+        for  possible_game_state_object in all_possible_game_state:
+            possible_game_state = possible_game_state_object["game state"]
+            heuristic = self.heuristic(possible_game_state, game_state["shadow"])
+            if heuristic > best_heuristic:
+                best_heuristic = heuristic
+                best_move = possible_game_state_object["player"]
+        return best_move
+
+    def heuristic(self, game_state, shadow):
+        screaming_players = []
+        suspects = utils.get_all_suspects(game_state)
+        for character in suspects:
+            if utils.get_number_characters_in_pos(game_state, character["position"]) == 1 or \
+                    character[
+                        "position"] == shadow:
+                screaming_players.append(character)
+        nbr_screaming = len(screaming_players)
+        nbr_not_screaming = len(suspects) - nbr_screaming
+        nbr_max = max(nbr_screaming, nbr_not_screaming)
+        nbr_min = min(nbr_screaming, nbr_not_screaming)
+        heuristic = (nbr_min / nbr_max) * 100
+        return heuristic
 
     def handle_json(self, data):
         data = json.loads(data)

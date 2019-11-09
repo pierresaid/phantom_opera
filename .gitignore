@@ -9,3 +9,4 @@ logs/inspector.log
 logs/profiling.txt
 __pycache__/*
 server_vs_jeu.txt
+.vscode
