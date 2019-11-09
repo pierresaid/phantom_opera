@@ -54,7 +54,6 @@ class Player():
         # work
         data = question["data"]
         game_state = question["game state"]
-<<<<<<< HEAD
         response_index = 0
         
         if question['question type'] == "select character":
@@ -76,21 +75,6 @@ class Player():
             # exit()
             # print(question['question type'])
             # print(question['data'])
-=======
-        response_index = random.randint(0, len(data)-1)
-        all_possible_game_state = utils.get_playable_characters_moves(game_state)
-
-        best_heuristic = 0
-        best_heuristic_idx = 0
-        for idx, possible_game_state_object in enumerate(all_possible_game_state):
-            possible_game_state = possible_game_state_object["game state"]
-            print("deokeo", possible_game_state)
-            heuristic = self.heurisitc(possible_game_state, question["game state"]["shadow"])
-            if heuristic > best_heuristic:
-                best_heuristic = heuristic
-                best_heuristic_idx = idx
-        import ipdb; ipdb.set_trace()
->>>>>>> 4e68fa3798383a0aaf6f8f5e5d33f6f668ad34bc
         # log
         inspector_logger.debug("|\n|")
         inspector_logger.debug("inspector answers")
