@@ -6,7 +6,7 @@ to launch a game
 
 2) python3.6 inspector.py
 
-3) python3.6 random.fantom.py
+3) python3.6 fantom.py
 
 ----
 you can set the level of importance of the logging messages : 
