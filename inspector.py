@@ -9,6 +9,7 @@ import random
 
 # Local import
 import utils
+import AlphaBeta
 
 host = "localhost"
 port = 12000
@@ -53,6 +54,7 @@ class Player():
         # work
         data = question["data"]
         game_state = question["game state"]
+<<<<<<< HEAD
         response_index = 0
         
         if question['question type'] == "select character":
@@ -74,6 +76,21 @@ class Player():
             # exit()
             # print(question['question type'])
             # print(question['data'])
+=======
+        response_index = random.randint(0, len(data)-1)
+        all_possible_game_state = utils.get_playable_characters_moves(game_state)
+
+        best_heuristic = 0
+        best_heuristic_idx = 0
+        for idx, possible_game_state_object in enumerate(all_possible_game_state):
+            possible_game_state = possible_game_state_object["game state"]
+            print("deokeo", possible_game_state)
+            heuristic = self.heurisitc(possible_game_state, question["game state"]["shadow"])
+            if heuristic > best_heuristic:
+                best_heuristic = heuristic
+                best_heuristic_idx = idx
+        import ipdb; ipdb.set_trace()
+>>>>>>> 4e68fa3798383a0aaf6f8f5e5d33f6f668ad34bc
         # log
         inspector_logger.debug("|\n|")
         inspector_logger.debug("inspector answers")
@@ -127,6 +144,28 @@ class Player():
             else:
                 print("no message, finished learning")
                 self.end = True
+
+    def heurisitc(self, game_state, shadow):
+        scream_list = []
+        not_scream_list = []
+        suspects = utils.get_all_suspects(game_state)
+        for character in suspects:
+            if utils.get_number_characters_in_pos(game_state, character["position"]) == 1 or \
+                    character[
+                        "position"] == shadow:
+                scream_list.append(character)
+            else:
+                not_scream_list.append(character)
+        print(f"nb suspect", len(suspects), "\n")
+        print(f"scream {len(scream_list)}\n")
+        print(f"not scream {len(not_scream_list)}\n")
+        scream_len = len(scream_list)
+        not_scream_len = len(not_scream_list)
+        bigger = max(scream_len, not_scream_len)
+        smaller = min(scream_len, not_scream_len)
+        heursitic = (smaller / bigger) * 100
+        print("\nheuristic: ", heursitic, "\n")
+        return heursitic
 
 
 p = Player()

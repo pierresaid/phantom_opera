@@ -19,6 +19,7 @@ def get_all_suspects(data):
 def get_all_innocents(data):
     return get_status(data, "suspect", False)
 
+<<<<<<< HEAD
 def get_available_moves(character, blocked):
     character_passages = pink_passages if character["color"] == 'pink' else passages
     if character["color"] != 'purple' or character["power"]:
@@ -28,6 +29,19 @@ def get_available_moves(character, blocked):
     return available_positions
 
 def get_all_possible_game_state_objects(game_state):
+=======
+def get_available_moves(charact, blocked):
+    pass_act = pink_passages if charact["color"] == 'pink' else passages
+    if charact["color"] != 'purple' or charact["power"]:
+        disp = {x for x in pass_act[charact["position"]]
+                if charact["position"] not in blocked or x not in blocked}
+
+        available_positions = list(disp)
+    return available_positions
+        # print("lol", available_positions)
+
+def get_playable_characters_moves(game_state):
+>>>>>>> 4e68fa3798383a0aaf6f8f5e5d33f6f668ad34bc
     ret = []
     for character in game_state["active tiles"]:
         new_pos = get_available_moves(character, game_state["blocked"])
@@ -35,7 +49,11 @@ def get_all_possible_game_state_objects(game_state):
             cp_game_state = copy.deepcopy(game_state["characters"])
             idx = next((index for (index, d) in enumerate(cp_game_state) if d["color"] == character["color"]), None)
             cp_game_state[idx]["position"] = move
+<<<<<<< HEAD
             ret.append({"game state": cp_game_state, "player" : {"color": character["color"], "pos": move}})
+=======
+            ret.append({"game state": cp_game_state, "player": (character["color"], move)})
+>>>>>>> 4e68fa3798383a0aaf6f8f5e5d33f6f668ad34bc
     return ret
 
 def alternatif_game_state(current_game_state, player, new_pos):
@@ -61,4 +79,8 @@ def get_number_characters_in_pos(characters, pos):
 import json
 
 def p(ret):
+<<<<<<< HEAD
     print(json.dumps(ret, indent=2))
+=======
+    print(json.dumps(ret, indent=2))
+>>>>>>> 4e68fa3798383a0aaf6f8f5e5d33f6f668ad34bc
