@@ -56,21 +56,28 @@ def get_all_possible_game_state_objects(game_state):
             idx = idx_by_c(game_state["characters"], character["color"])
             # next((index for (index, d) in enumerate(cp_game_state) if d["color"] == character["color"]), None)
             cp_game_state[idx]["position"] = move
-            ret.append({"game state": cp_game_state, "player" : {"color": character["color"],
-                                                                 "pos": move}})
+            ret.append({"game state": cp_game_state, "player": {"color": character["color"],
+                                                                 "pos": move,
+                                                                "shadow": game_state["shadow"]}})
 
-        if character["color"] == "purple":
-            purple_idx = idx_by_c(game_state["characters"], "purple")
-            # purple_idx = next((index for (index, d) in enumerate(game_state["characters"]) if d["color"] == "purple"), None)
-            for character in game_state["characters"]:
-                if character["color"] != "purple" and character["position"] != game_state["characters"][purple_idx]["position"]:
-                    idx = idx_by_c(game_state["characters"], character["color"])
-                    # idx = next((index for (index, d) in enumerate(cp_game_state) if d["color"] == character["color"]), None)
-                    cp_game_state = copy.deepcopy(game_state)
-                    cp_game_state = swap_characters(cp_game_state["characters"], character, game_state["characters"][purple_idx])
-                    ret.append({"game state": cp_game_state, "player": {"color": "purple",
-                                                                        "power": True,
-                                                                        "swap": character["color"]}})
+        # if character["color"] == "purple":
+        #     purple_idx = idx_by_c(game_state["characters"], "purple")
+        #     # purple_idx = next((index for (index, d) in enumerate(game_state["characters"]) if d["color"] == "purple"), None)
+        #     for character in game_state["characters"]:
+        #         if character["color"] != "purple" and character["position"] != game_state["characters"][purple_idx]["position"]:
+        #             idx = idx_by_c(game_state["characters"], character["color"])
+        #             # idx = next((index for (index, d) in enumerate(cp_game_state) if d["color"] == character["color"]), None)
+        #             cp_game_state = copy.deepcopy(game_state)
+        #             cp_game_state = swap_characters(cp_game_state["characters"], character, game_state["characters"][purple_idx])
+        #             ret.append({"game state": cp_game_state, "player": {"color": "purple",
+        #                                                                 "power": True,
+        #                                                                 "swap": character["color"]}})
+
+        # if character['color'] == 'grey':
+        #     for new_shadow in range(8):
+        #         if new_shadow != game_state["shadow"]:
+        #             grey_game_state = copy.deepcopy(game_state["characters"])
+        #             ret.append({"game state": grey_game_state, "player": {"color": character["color"], "shadow": new_shadow}})
     return ret
 
 def idx_by_c(characters, color):
@@ -102,17 +109,25 @@ def find_best_move(game_state, func_ptr_heuristic):
     best_heuristic = -100
     for possible_game_state_object in all_possible_game_state:
         possible_game_state = possible_game_state_object["game state"]
-        heuristic = func_ptr_heuristic(possible_game_state, game_state["shadow"])
+        # print(possible_game_state["shadow"], type(possible_game_state["shadow"]))
+        # print("lol",possible_game_state_object["player"]["shadow"], game_state["shadow"])
+        # print(possible_game_state_object["player"])
+        # print("odkzodkzodkzod", possible_game_state_object["player"]["shadow"], type(possible_game_state_object["player"]["shadow"]))
+        # print(type(possible_game_state),"kiediedjeidj", possible_game_state)
+        # print("ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo")
+        heuristic = func_ptr_heuristic(possible_game_state, possible_game_state_object["player"]["shadow"])
+        # heuristic = func_ptr_heuristic(possible_game_state, game_state["shadow"])
+
         # print("heuristic", heuristic)
         # print("best heuristic", best_heuristic)
         # print("")
         if heuristic > best_heuristic:
             best_heuristic = heuristic
             best_move = possible_game_state_object["player"]
-            print(possible_game_state_object["player"])
-    if "power" in possible_game_state_object["player"].keys():
-        print(heuristic, best_heuristic)
-        import ipdb; ipdb.set_trace()
+            # print(possible_game_state_object["player"])
+    # if "MDR" in possible_game_state_object["player"].keys():
+    #     print(heuristic, best_heuristic)
+    #     import ipdb; ipdb.set_trace()
     return best_move
 
 

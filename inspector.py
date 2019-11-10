@@ -4,6 +4,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 import json
 import protocol
+import copy
 from random import randrange
 import random
 
@@ -61,8 +62,6 @@ class Player():
             response_index = next((index for (index, d) in enumerate(question['data']) if d["color"] == self.best_move["color"]), None)
 
         elif question["question type"] == 'activate red power':
-            print("ICIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIii")
-            print(question["game state"]["num_tour"])
             response_index = 1
 
         # elif question["question type"] == 'activate purple power':
@@ -71,6 +70,17 @@ class Player():
         #     import ipdb; ipdb.set_trace()
         #     response_index = 1
 
+        if question['question type'] == "activate grey power":
+            best_shadow_room = 0
+            best_shadow_room_heuristic = -100
+            for new_shadow in range(8):
+                if new_shadow != game_state["shadow"]:
+                    grey_game_state = copy.deepcopy(game_state["characters"])
+                    grey_heuristic = self.heuristic(grey_game_state, new_shadow)
+                    if grey_heuristic > best_shadow_room_heuristic:
+                        best_shadow_room_heuristic = grey_heuristic
+                        best_shadow_room = new_shadow
+            print(best_shadow_room, best_shadow_room_heuristic)
 
         elif question['question type'] == "select position":
             response_index = next((index for (index, d) in enumerate(question['data']) if d == self.best_move["pos"]), None)
@@ -96,7 +106,11 @@ class Player():
 
     def heuristic(self, game_state, shadow):
         screaming_players = []
+        # print("lolokofkfoekfeofkeofkeofkeofkoef")
+        # print(game_state)
+        # p(game_state);
         suspects = utils.get_all_suspects(game_state)
+        # p(suspects)
         for character in suspects:
             if utils.get_number_characters_in_pos(game_state, character["position"]) == 1 or \
                     character[
@@ -128,27 +142,27 @@ class Player():
                 print("no message, finished learning")
                 self.end = True
 
-    def heurisitc(self, game_state, shadow):
-        scream_list = []
-        not_scream_list = []
-        suspects = utils.get_all_suspects(game_state)
-        for character in suspects:
-            if utils.get_number_characters_in_pos(game_state, character["position"]) == 1 or \
-                    character[
-                        "position"] == shadow:
-                scream_list.append(character)
-            else:
-                not_scream_list.append(character)
-        print(f"nb suspect", len(suspects), "\n")
-        print(f"scream {len(scream_list)}\n")
-        print(f"not scream {len(not_scream_list)}\n")
-        scream_len = len(scream_list)
-        not_scream_len = len(not_scream_list)
-        bigger = max(scream_len, not_scream_len)
-        smaller = min(scream_len, not_scream_len)
-        heursitic = (smaller / bigger) * 100
-        print("\nheuristic: ", heursitic, "\n")
-        return heursitic
+    # def heurisitc(self, game_state, shadow):
+    #     scream_list = []
+    #     not_scream_list = []
+    #     suspects = utils.get_all_suspects(game_state)
+    #     for character in suspects:
+    #         if utils.get_number_characters_in_pos(game_state, character["position"]) == 1 or \
+    #                 character[
+    #                     "position"] == shadow:
+    #             scream_list.append(character)
+    #         else:
+    #             not_scream_list.append(character)
+    #     print(f"nb suspect", len(suspects), "\n")
+    #     print(f"scream {len(scream_list)}\n")
+    #     print(f"not scream {len(not_scream_list)}\n")
+    #     scream_len = len(scream_list)
+    #     not_scream_len = len(not_scream_list)
+    #     bigger = max(scream_len, not_scream_len)
+    #     smaller = min(scream_len, not_scream_len)
+    #     heursitic = (smaller / bigger) * 100
+    #     print("\nheuristic: ", heursitic, "\n")
+    #     return heursitic
 
 
 p = Player()
