@@ -9,7 +9,6 @@ import random
 
 # Local import
 import utils
-import AlphaBeta
 
 host = "localhost"
 port = 12000
