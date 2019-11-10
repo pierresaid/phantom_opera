@@ -35,7 +35,7 @@ fantom_logger.addHandler(stream_handler)
 class Player():
 
     def __init__(self):
-
+        self.best_move = None
         self.end = False
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -47,53 +47,8 @@ class Player():
         self.socket.close()
 
     def answer(self, question):
-        data = question["data"]
-        game_state = question["game state"]
-        response_index = 0
+        return utils.answer(self, question, "fantom")
 
-        if question['question type'] == "select character":
-            self.best_move = utils.find_best_move(game_state, self.heuristic)
-            # self.best_move = self.find_best_move(game_state)
-            response_index = next(
-                (index for (index, d) in enumerate(question['data']) if d["color"] == self.best_move["color"]), None)
-            # print(question['data'])
-
-        elif question['question type'] == "select position":
-            # self.best_move = self.find_best_move(game_state)
-            response_index = next((index for (index, d) in enumerate(question['data']) if d == self.best_move["pos"]),
-                                  None)
-            # print(response_index)
-            # print(question['data'])
-            # exit()
-        # else:
-        # self.best_move = self.find_best_move(game_state)
-        # response_index = next((index for (index, d) in enumerate(question['data']) if d == self.best_move["pos"]), None)
-        # print(response_index)
-        # print(question['data'])
-        # exit()
-        # print(question['question type'])
-        # print(question['data'])
-        # log
-        fantom_logger.debug("|\n|")
-        fantom_logger.debug("inspector answers")
-        fantom_logger.debug(f"question type ----- {question['question type']}")
-        fantom_logger.debug(f"data -------------- {data}")
-        fantom_logger.debug(f"response index ---- {response_index}")
-        fantom_logger.debug(f"response ---------- {data[response_index]}")
-        return response_index
-
-        # # work
-        # data = question["data"]
-        # game_state = question["game state"]
-        # response_index = random.randint(0, len(data)-1)
-        # # log
-        # fantom_logger.debug("|\n|")
-        # fantom_logger.debug("fantom answers")
-        # fantom_logger.debug(f"question type ----- {question['question type']}")
-        # fantom_logger.debug(f"data -------------- {data}")
-        # fantom_logger.debug(f"response index ---- {response_index}")
-        # fantom_logger.debug(f"response ---------- {data[response_index]}")
-        # return response_index
     def heuristic(self, game_state, shadow):
         screaming_players = []
         suspects = utils.get_all_suspects(game_state)
