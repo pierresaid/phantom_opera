@@ -6,6 +6,31 @@ passages = [{1, 4}, {0, 2}, {1, 3}, {2, 7}, {0, 5, 8},
 pink_passages = [{1, 4}, {0, 2, 5, 7}, {1, 3, 6}, {2, 7}, {0, 5, 8, 9}, {
     4, 6, 1, 8}, {5, 7, 2, 9}, {3, 6, 9, 1}, {4, 9, 5}, {7, 8, 4, 6}]
 
+def answer(self, question):
+    data = question["data"]
+    game_state = question["game state"]
+    response_index = 0
+
+    if question['question type'] == "select character":
+        self.best_move = find_best_move(game_state, self.heuristic)
+        response_index = next((index for (index, d) in enumerate(question['data']) if d["color"] == self.best_move["color"]), None)
+
+    elif question["question type"] == 'activate red power':
+        response_index = 1
+
+    elif question["question type"] == 'activate purple power':
+        if self.best_move["power"] == True:
+            response_index = 1
+        else:
+            response_index = 0
+
+    elif question["question type"] == 'purple character power':
+        response_index = next((index for (index, d) in enumerate(question['data']) if d == self.best_move["swap"]), None)
+
+    elif question['question type'] == "select position":
+        response_index = next((index for (index, d) in enumerate(question['data']) if d == self.best_move["pos"]), None)
+    return response_index
+
 def get_status(data, key, value):
     ret = []
     for elem in data:
@@ -57,6 +82,7 @@ def get_all_possible_game_state_objects(game_state):
             # next((index for (index, d) in enumerate(cp_game_state) if d["color"] == character["color"]), None)
             cp_game_state[idx]["position"] = move
             ret.append({"game state": cp_game_state, "player" : {"color": character["color"],
+                                                                "power": False,
                                                                  "pos": move}})
 
         if character["color"] == "purple":
@@ -110,9 +136,9 @@ def find_best_move(game_state, func_ptr_heuristic):
             best_heuristic = heuristic
             best_move = possible_game_state_object["player"]
             print(possible_game_state_object["player"])
-    if "power" in possible_game_state_object["player"].keys():
-        print(heuristic, best_heuristic)
-        import ipdb; ipdb.set_trace()
+    # if "power" in possible_game_state_object["player"].keys():
+    #     print(heuristic, best_heuristic)
+    #     import ipdb; ipdb.set_trace()
     return best_move
 
 
