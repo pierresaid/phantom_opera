@@ -19,24 +19,62 @@ def get_all_suspects(data):
 def get_all_innocents(data):
     return get_status(data, "suspect", False)
 
-def get_available_moves(character, blocked):
+def get_available_moves(character, game_state):
     character_passages = pink_passages if character["color"] == 'pink' else passages
     if character["color"] != 'purple' or character["power"]:
         disp = {x for x in character_passages[character["position"]]
-                if character["position"] not in blocked or x not in blocked}
+                if character["position"] not in game_state["blocked"] or x not in game_state["blocked"]}
         available_positions = list(disp)
+    # if character["color"] != 'purple' and character["power"] == False:
+    #     available_positions += get_all_players_positions()
+
     return available_positions
+
+def every_player_position(characters, exclude=[]):
+    ret = {}
+    for character in characters:
+        if character["color"] not in exclude:
+            ret[character["color"]] = character["position"]
+    return ret
+
+def swap_characters(game_state, pl1, pl2):
+    # print("mdr", pl1)
+    # print("lol", pl2)
+    idx_pl1 = next((index for (index, d) in enumerate(game_state) if d["color"] == pl1["color"]), None)
+    idx_pl2 = next((index for (index, d) in enumerate(game_state) if d["color"] == pl2["color"]), None)
+    tmp = copy.deepcopy(game_state[idx_pl1]["position"])
+    game_state[idx_pl1]["position"] = game_state[idx_pl2]["position"]
+    game_state[idx_pl2]["position"] = tmp
+    return game_state
 
 def get_all_possible_game_state_objects(game_state):
     ret = []
     for character in game_state["active tiles"]:
-        new_pos = get_available_moves(character, game_state["blocked"])
+        new_pos = get_available_moves(character, game_state)
         for move in new_pos:
             cp_game_state = copy.deepcopy(game_state["characters"])
-            idx = next((index for (index, d) in enumerate(cp_game_state) if d["color"] == character["color"]), None)
+            idx = idx_by_c(game_state["characters"], character["color"])
+            # next((index for (index, d) in enumerate(cp_game_state) if d["color"] == character["color"]), None)
             cp_game_state[idx]["position"] = move
-            ret.append({"game state": cp_game_state, "player" : {"color": character["color"], "pos": move}})
+            ret.append({"game state": cp_game_state, "player" : {"color": character["color"],
+                                                                 "pos": move}})
+
+        if character["color"] == "purple":
+            purple_idx = idx_by_c(game_state["characters"], "purple")
+            # purple_idx = next((index for (index, d) in enumerate(game_state["characters"]) if d["color"] == "purple"), None)
+            for character in game_state["characters"]:
+                if character["color"] != "purple" and character["position"] != game_state["characters"][purple_idx]["position"]:
+                    idx = idx_by_c(game_state["characters"], character["color"])
+                    # idx = next((index for (index, d) in enumerate(cp_game_state) if d["color"] == character["color"]), None)
+                    cp_game_state = copy.deepcopy(game_state)
+                    cp_game_state = swap_characters(cp_game_state["characters"], character, game_state["characters"][purple_idx])
+                    ret.append({"game state": cp_game_state, "player": {"color": "purple",
+                                                                        "power": True,
+                                                                        "swap": character["color"]}})
     return ret
+
+def idx_by_c(characters, color):
+    return next((index for (index, d) in enumerate(characters) if d["color"] == color), None)
 
 def alternatif_game_state(current_game_state, player, new_pos):
     #print(current_game_state, player, new_pos)
@@ -71,6 +109,10 @@ def find_best_move(game_state, func_ptr_heuristic):
         if heuristic > best_heuristic:
             best_heuristic = heuristic
             best_move = possible_game_state_object["player"]
+            print(possible_game_state_object["player"])
+    if "power" in possible_game_state_object["player"].keys():
+        print(heuristic, best_heuristic)
+        import ipdb; ipdb.set_trace()
     return best_move
 
 

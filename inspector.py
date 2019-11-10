@@ -54,27 +54,26 @@ class Player():
         data = question["data"]
         game_state = question["game state"]
         response_index = 0
-        
+
+        # import ipdb; ipdb.set_trace()
         if question['question type'] == "select character":
             self.best_move = utils.find_best_move(game_state, self.heuristic)
-            # self.best_move = self.find_best_move(game_state)
             response_index = next((index for (index, d) in enumerate(question['data']) if d["color"] == self.best_move["color"]), None)
-            # print(question['data'])
-        
+
+        elif question["question type"] == 'activate red power':
+            print("ICIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIii")
+            print(question["game state"]["num_tour"])
+            response_index = 1
+
+        # elif question["question type"] == 'activate purple power':
+        #     # print("ICIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIii")
+        #     # print(question["game state"]["num_tour"])
+        #     import ipdb; ipdb.set_trace()
+        #     response_index = 1
+
+
         elif question['question type'] == "select position":
-            # self.best_move = self.find_best_move(game_state)
             response_index = next((index for (index, d) in enumerate(question['data']) if d == self.best_move["pos"]), None)
-            # print(response_index)
-            # print(question['data'])
-            # exit()
-        # else:
-            # self.best_move = self.find_best_move(game_state)
-            # response_index = next((index for (index, d) in enumerate(question['data']) if d == self.best_move["pos"]), None)
-            # print(response_index)
-            # print(question['data'])
-            # exit()
-            # print(question['question type'])
-            # print(question['data'])
         # log
         inspector_logger.debug("|\n|")
         inspector_logger.debug("inspector answers")
