@@ -58,6 +58,22 @@ def get_number_characters_in_pos(characters, pos):
             nb += 1
     return nb
 
+def find_best_move(game_state, func_ptr_heuristic):
+    all_possible_game_state = get_all_possible_game_state_objects(game_state)
+    # best_heuristic = -1
+    best_heuristic = -100
+    for possible_game_state_object in all_possible_game_state:
+        possible_game_state = possible_game_state_object["game state"]
+        heuristic = func_ptr_heuristic(possible_game_state, game_state["shadow"])
+        # print("heuristic", heuristic)
+        # print("best heuristic", best_heuristic)
+        # print("")
+        if heuristic > best_heuristic:
+            best_heuristic = heuristic
+            best_move = possible_game_state_object["player"]
+    return best_move
+
+
 import json
 
 def p(ret):

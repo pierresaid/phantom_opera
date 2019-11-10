@@ -57,7 +57,8 @@ class Player():
         response_index = 0
         
         if question['question type'] == "select character":
-            self.best_move = self.find_best_move(game_state)
+            self.best_move = utils.find_best_move(game_state, self.heuristic)
+            # self.best_move = self.find_best_move(game_state)
             response_index = next((index for (index, d) in enumerate(question['data']) if d["color"] == self.best_move["color"]), None)
             # print(question['data'])
         
@@ -84,16 +85,16 @@ class Player():
         inspector_logger.debug(f"response ---------- {data[response_index]}")
         return response_index
 
-    def find_best_move(self, game_state):
-        all_possible_game_state = utils.get_all_possible_game_state_objects(game_state)
-        best_heuristic = -1
-        for  possible_game_state_object in all_possible_game_state:
-            possible_game_state = possible_game_state_object["game state"]
-            heuristic = self.heuristic(possible_game_state, game_state["shadow"])
-            if heuristic > best_heuristic:
-                best_heuristic = heuristic
-                best_move = possible_game_state_object["player"]
-        return best_move
+    # def find_best_move(self, game_state):
+    #     all_possible_game_state = utils.get_all_possible_game_state_objects(game_state)
+    #     best_heuristic = -1
+    #     for  possible_game_state_object in all_possible_game_state:
+    #         possible_game_state = possible_game_state_object["game state"]
+    #         heuristic = self.heuristic(possible_game_state, game_state["shadow"])
+    #         if heuristic > best_heuristic:
+    #             best_heuristic = heuristic
+    #             best_move = possible_game_state_object["player"]
+    #     return best_move
 
     def heuristic(self, game_state, shadow):
         screaming_players = []

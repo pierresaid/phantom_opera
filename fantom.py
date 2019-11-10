@@ -4,6 +4,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 import json
 import protocol
+import utils
 from random import randrange
 import random
 
@@ -46,18 +47,71 @@ class Player():
         self.socket.close()
 
     def answer(self, question):
-        # work
         data = question["data"]
         game_state = question["game state"]
-        response_index = random.randint(0, len(data)-1)
+        response_index = 0
+
+        if question['question type'] == "select character":
+            self.best_move = utils.find_best_move(game_state, self.heuristic)
+            # self.best_move = self.find_best_move(game_state)
+            response_index = next(
+                (index for (index, d) in enumerate(question['data']) if d["color"] == self.best_move["color"]), None)
+            # print(question['data'])
+
+        elif question['question type'] == "select position":
+            # self.best_move = self.find_best_move(game_state)
+            response_index = next((index for (index, d) in enumerate(question['data']) if d == self.best_move["pos"]),
+                                  None)
+            # print(response_index)
+            # print(question['data'])
+            # exit()
+        # else:
+        # self.best_move = self.find_best_move(game_state)
+        # response_index = next((index for (index, d) in enumerate(question['data']) if d == self.best_move["pos"]), None)
+        # print(response_index)
+        # print(question['data'])
+        # exit()
+        # print(question['question type'])
+        # print(question['data'])
         # log
         fantom_logger.debug("|\n|")
-        fantom_logger.debug("fantom answers")
+        fantom_logger.debug("inspector answers")
         fantom_logger.debug(f"question type ----- {question['question type']}")
         fantom_logger.debug(f"data -------------- {data}")
         fantom_logger.debug(f"response index ---- {response_index}")
         fantom_logger.debug(f"response ---------- {data[response_index]}")
         return response_index
+
+        # # work
+        # data = question["data"]
+        # game_state = question["game state"]
+        # response_index = random.randint(0, len(data)-1)
+        # # log
+        # fantom_logger.debug("|\n|")
+        # fantom_logger.debug("fantom answers")
+        # fantom_logger.debug(f"question type ----- {question['question type']}")
+        # fantom_logger.debug(f"data -------------- {data}")
+        # fantom_logger.debug(f"response index ---- {response_index}")
+        # fantom_logger.debug(f"response ---------- {data[response_index]}")
+        # return response_index
+    def heuristic(self, game_state, shadow):
+        screaming_players = []
+        suspects = utils.get_all_suspects(game_state)
+        for character in suspects:
+            if utils.get_number_characters_in_pos(game_state, character["position"]) == 1 or \
+                    character["position"] == shadow:
+                screaming_players.append(character)
+        nbr_screaming = len(screaming_players)
+        nbr_not_screaming = len(suspects) - nbr_screaming
+        # nbr_max = max(nbr_screaming, nbr_not_screaming)
+        # nbr_min = min(nbr_screaming, nbr_not_screaming)
+        # heuristic = (nbr_min / nbr_max) * 100
+        try:
+            # print(f"1 - {nbr_not_screaming} / {nbr_screaming} = {1 - nbr_not_screaming / nbr_screaming}")
+            heuristic = 1 - nbr_not_screaming / nbr_screaming
+        except ZeroDivisionError:
+            return -7
+        return heuristic
 
     def handle_json(self, data):
         data = json.loads(data)
